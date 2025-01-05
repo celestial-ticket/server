@@ -8,8 +8,8 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { userResolvers, userTypeDefs } from "./schema/userSchema.ts";
 import { cinemaResolvers, cinemaTypeDefs } from "./schema/cinemaSchema.ts";
-import User from "./models/user.ts";
 import { verifyToken } from "./helpers/jwt.ts";
+import { movieResolvers, movieTypeDefs } from "./schema/movieSchema.ts";
 
 interface Context {
   req: {
@@ -21,8 +21,8 @@ interface Context {
 }
 
 const server = new ApolloServer({
-  typeDefs: [userTypeDefs, cinemaTypeDefs],
-  resolvers: [userResolvers, cinemaResolvers],
+  typeDefs: [userTypeDefs, cinemaTypeDefs, movieTypeDefs],
+  resolvers: [userResolvers, cinemaResolvers, movieResolvers],
 });
 
 startStandaloneServer(server, {

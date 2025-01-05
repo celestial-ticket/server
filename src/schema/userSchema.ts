@@ -106,7 +106,6 @@ export const userResolvers = {
     },
 
     async login(_: unknown, args: ILoginArgs) {
-      try {
         if (!args.input.email) throw new Error("email is required");
         if (!args.input.password) throw new Error("Password is required");
 
@@ -116,6 +115,7 @@ export const userResolvers = {
           args.input.password,
           user.password
         );
+
         if (!isValidPassword) throw new Error("Invalid email/password");
 
         const accessToken = signToken({
@@ -127,9 +127,6 @@ export const userResolvers = {
           user,
           accessToken,
         };
-      } catch (error) {
-        console.log("🚀 ~ error di login ini:", error);
-      }
     },
   },
 };
