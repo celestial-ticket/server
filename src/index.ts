@@ -7,11 +7,11 @@ if (process.env.NODE_ENV !== "production") {
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { userResolvers, userTypeDefs } from "./schema/userSchema.ts";
-
+import { cinemaResolvers, cinemaTypeDefs } from './schema/cinemaSchema.ts';
 
 const server = new ApolloServer({
-  typeDefs: [userTypeDefs],
-  resolvers: [userResolvers],
+  typeDefs: [userTypeDefs, cinemaTypeDefs],
+  resolvers: [userResolvers, cinemaResolvers],
 });
 
 startStandaloneServer(server, {
