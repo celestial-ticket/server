@@ -1,0 +1,17 @@
+import { ObjectId } from "mongodb";
+
+export interface ISeat {
+    seat: string;
+    status: string;
+}
+
+export interface IShowTime {
+    _id: ObjectId;
+    startTime: Date;    
+    endTime: Date;      
+    date: Date;         
+    seatList: ISeat[];  
+    studioId: ObjectId; 
+    movieId: ObjectId;  
+    cinemaId: ObjectId; 
+}
