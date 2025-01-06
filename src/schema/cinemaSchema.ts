@@ -7,6 +7,8 @@ export const cinemaTypeDefs = `#graphql
         _id: ID!
         name: String!
         address: String!
+        createdAt: String
+        updatedAt: String
     }
 
     type CinemaDetailResponse{

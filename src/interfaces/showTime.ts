@@ -9,7 +9,8 @@ export interface IShowTime {
     _id: ObjectId;
     startTime: Date;    
     endTime: Date;      
-    date: Date;         
+    date: Date;
+    price: number;         
     seatList: ISeat[];  
     studioId: ObjectId; 
     movieId: ObjectId;  

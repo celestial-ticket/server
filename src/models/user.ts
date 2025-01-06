@@ -30,4 +30,19 @@ export default class User {
     };
     await this.coll.insertOne(newUser);
   }
+
+  //static update user
+  static async update(_id: string, body: IRegisterArgs['body']) {
+    const user = await this.coll.findOne({ _id: new ObjectId(_id) });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    await this.coll.updateOne(
+      { _id: new ObjectId(_id) },
+      { $set: { ...body, 
+        password: hashPassword(body.password),
+        createdAt: new Date(),
+        updatedAt: new Date() } }
+    );
+  }
 }

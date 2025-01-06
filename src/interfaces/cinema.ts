@@ -4,6 +4,6 @@ export interface ICinema {
   _id: ObjectId;
   name: String;
   address: String;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

@@ -10,11 +10,16 @@ export const movieTypeDefs =`#graphql
     duration: String!
     thumbnail: String!
     cast: [String]!
-    ageRating: String!
+    ageRating: String
+    movieStatus: String!
+    createdAt: String
+    updatedAt: String
   }
 
   type Query {
     movies: [Movie]
+    nowShowing: [Movie]
+    upcoming: [Movie]
   }
 `;
 
@@ -23,5 +28,19 @@ export const movieResolvers = {
     movies: async (): Promise<IMovie[]> => {
       return await Movie.findAll();
     },
+
+     //find movie by movie status "now showing"
+     nowShowing: async (): Promise<IMovie[]> => {
+      return await Movie.findByStatus("Now Showing");
+
+    },
+
+    upcoming: async (): Promise<IMovie[]> => {
+      return await Movie.findByStatus("Upcoming");
+
+    }
   },
+
+
+ 
 };
