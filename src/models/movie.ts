@@ -8,4 +8,13 @@ export default class Movie {
         const movies = await this.coll.find().toArray();
         return movies;
     }
+
+
+    //find movie by movie status "now showing"
+    static async findByStatus(status: string): Promise<IMovie[]> {
+        const movies = await this.coll.find({movieStatus: status}).toArray();
+        return movies;
+    }
+
+
 }

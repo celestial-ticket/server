@@ -10,6 +10,7 @@ import { userResolvers, userTypeDefs } from "./schema/userSchema.ts";
 import { cinemaResolvers, cinemaTypeDefs } from "./schema/cinemaSchema.ts";
 import { verifyToken } from "./helpers/jwt.ts";
 import { movieResolvers, movieTypeDefs } from "./schema/movieSchema.ts";
+import User from "./models/user.ts";
 
 interface Context {
   req: {
@@ -42,6 +43,8 @@ startStandaloneServer(server, {
       const payload = verifyToken(token);
       console.log(payload, "<<<");
 
+      // const user = await User.findOne(payload._id)
+      // return user
     }
     return { auth };
   },
