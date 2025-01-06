@@ -12,6 +12,8 @@ export const movieTypeDefs =`#graphql
     cast: [String]!
     ageRating: String
     movieStatus: String!
+    createdAt: String
+    updatedAt: String
   }
 
   type Query {

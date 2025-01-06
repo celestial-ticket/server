@@ -40,6 +40,7 @@ export default class User {
     await this.coll.updateOne(
       { _id: new ObjectId(_id) },
       { $set: { ...body, 
+        password: hashPassword(body.password),
         createdAt: new Date(),
         updatedAt: new Date() } }
     );

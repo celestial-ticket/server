@@ -10,15 +10,16 @@ export const userTypeDefs = `#graphql
       _id: ID!
       name: String
       email: String!
-      password: String!
       phoneNumber: String
       address: String!
       gender: String
+      
     }
 
     type UserDetailResponse{
       user: User
     }
+    # Query User Details (Schedule, Cinema, Film, Order)
 
      # type query
      type Query {
@@ -133,7 +134,7 @@ export const userResolvers = {
           accessToken,
         };
     },
-    
+
     async updateUser(_: unknown, args: { _id: string; body: IRegisterArgs['body'] }) {
       await User.update(args._id, args.body);
       const user = await User.findOne(args._id);

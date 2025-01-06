@@ -1,14 +1,26 @@
 import { ObjectId } from "mongodb";
 
-export interface ICinema {
-  _id: ObjectId;
+export interface IOrder {
+  _id?: ObjectId;
   paymentStatus: string;
   paymentAmount: number;
   price: number;
-  status: [string];
+  seats: [string];
   userId: ObjectId;
   cinemaId: ObjectId;
-  showTime: ObjectId;
+  showTimeId: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IOrderInput {
+  paymentStatus: string;
+  paymentAmount: number;
+  price: number;
+  seats: [string];
+  userId: ObjectId;
+  cinemaId: ObjectId;
+  showTimeId: ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
