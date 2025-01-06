@@ -18,6 +18,7 @@ export const midtransResolvers = {
   Mutation: {
     createPaymentToken: async (_, { amount }) => {
       try {
+        console.log("🚀 ~ createPaymentToken: ~ createPaymentToken");
         const midtransServerKey = process.env.Midtrans_ServerKey; // Midtrans Server Key
         console.log(
           "🚀 ~ createPaymentToken: ~ midtransServerKey:",
