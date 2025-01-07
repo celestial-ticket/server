@@ -10,7 +10,11 @@ export default class Order {
     return this.coll.find().toArray();
   }
 
-  //static create order
+  static async findAllByUser(userId: ObjectId): Promise<IOrder[]> {
+    return this.coll.find({ userId }).toArray();
+  }
+
+  //static create order 
   static async createOrder(body: IOrderInput): Promise<ObjectId> {
     const newOrder: IOrder = {
       ...body,

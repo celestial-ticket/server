@@ -3,6 +3,7 @@ import { comparePassword } from "../helpers/bcrypt.ts";
 import { signToken } from "../helpers/jwt.ts";
 import { ILoginArgs, IRegisterArgs, IUser } from "../interfaces/user.ts";
 import User from "../models/user.ts";
+import { ObjectId } from "mongodb";
 
 export const userTypeDefs = `#graphql
     # Type of data we have
@@ -135,7 +136,11 @@ export const userResolvers = {
         };
     },
 
-    async updateUser(_: unknown, args: { _id: string; body: IRegisterArgs['body'] }) {
+    async updateUser(_: unknown, args: { _id: string; body: IRegisterArgs['body'] }, contextValue: { auth: () => { _id: ObjectId } }) {
+      const userLogin = await contextValue.auth();
+      if (userLogin._id.toString() !== args._id) {
+      throw new Error("Unauthorized");
+      }
       await User.update(args._id, args.body);
       const user = await User.findOne(args._id);
       return { user };

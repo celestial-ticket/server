@@ -1,6 +1,9 @@
 import { ObjectId } from "mongodb";
 import { IOrderInput } from "../interfaces/order.ts";
 import Order from "../models/order.ts";
+import ShowTime from "../models/showtime.ts";
+import Cinema from "../models/cinema.ts";
+import Movie from "../models/movie.ts";
 
 export const orderTypeDefs = `#graphql
     type Order{
@@ -35,7 +38,7 @@ export const orderTypeDefs = `#graphql
     # query find all order by user login and showtime, Cinema, movie, Order
     type Query{
       getOrders: [Order]
-
+      getOrderDetails: [Order]
     }
 
     type Mutation{
@@ -48,6 +51,24 @@ export const orderResolvers = {
     getOrders: async () => {
       const orders = await Order.findAll();
       return orders;
+    },
+    getOrderDetails: async (_: unknown, __: unknown, contextValue: { auth: () => { _id: ObjectId } }) => {
+      const user = await contextValue.auth();
+      const orders = await Order.findAllByUser(user._id);
+      console.log(orders, "????");
+      const detailedOrders = await Promise.all(orders.map(async (order) => {
+        const showTime = await ShowTime.coll.findOne({ _id: order.showTimeId });
+        const cinema = await Cinema.coll.findOne({ _id: order.cinemaId });
+        // const movie = await Movie.coll.findOne({ _id: showTime.movieId });
+        console.log(showTime, cinema, "????");
+        return {
+          ...order,
+          showTime,
+          cinema,
+          // movie,
+        };
+      }));
+      return detailedOrders;
     },
   },
 

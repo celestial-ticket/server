@@ -52,7 +52,13 @@ startStandaloneServer(server, {
       if (type !== "Bearer" || !token) throw new Error("Invalid Token");
 
       const payload = verifyToken(token);
-      console.log(payload, "<<<");
+
+
+      if (typeof payload !== "string" && payload._id) {
+        const user = await User.findOne(payload._id as string);
+        return user;
+      }
+      throw new Error("Invalid Token");
     }
     return { auth };
   },
