@@ -25,7 +25,7 @@ export default class Cinema {
           $geoNear: {
             near: location,
             distanceField: "distance",
-            maxDistance: 25 * 1000,
+            maxDistance: maxDistance * 1000 || 25 * 10000,
             spherical: true,
           },
         },

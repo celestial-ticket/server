@@ -19,17 +19,19 @@ export const cinemaTypeDefs = `#graphql
     coordinates: [Float!]!
   }
 
-     # type query
-     type Query {
-        cinemas: [Cinema] #get cinema
-        cinema(_id: ID!): Cinema #get cinema by id
-        getNearbyCinemas(userLocation: LocationInput!, maxDistance: Int!): [Cinema]
-    }
+  input LocationInput {
+    type: String!
+    coordinates: [Float!]!
+  }
 
-    input LocationInput {
-      type: String!
-      coordinates: [Float!]!
-    }
+  # type query
+  type Query {
+    cinemas: [Cinema] #get cinema
+    cinema(_id: ID!): Cinema #get cinema by id
+    getNearbyCinemas(userLocation: LocationInput!, maxDistance: Int): [Cinema]
+  }
+
+
 `;
 
 export const cinemaResolvers = {
