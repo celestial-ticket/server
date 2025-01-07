@@ -87,4 +87,6 @@ export async function createApolloServer({ port }: { port: number }) {
   return { server, url };
 }
 
-createApolloServer({ port: 4000 });
+if (process.env.NODE_ENV !== "test") {
+  createApolloServer({ port: 4000 });
+}

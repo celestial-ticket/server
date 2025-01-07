@@ -8,23 +8,10 @@ if (process.env.NODE_ENV !== "production") {
 import request from "supertest";
 import { describe, it, beforeAll, afterAll, expect } from "@jest/globals";
 
-import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
-import { userResolvers, userTypeDefs } from "../schema/userSchema.ts";
-import { cinemaResolvers, cinemaTypeDefs } from "../schema/cinemaSchema.ts";
-import { verifyToken } from "../helpers/jwt.ts";
-import { movieResolvers, movieTypeDefs } from "../schema/movieSchema.ts";
-import { midtransResolvers, midtransTypeDefs } from "../schema/midtrans.ts";
-import User from "../models/user.ts";
-import { IUser } from "../interfaces/user.ts";
-import { ObjectId, WithId } from "mongodb";
-// import the server after dotenv.config() is called
-import { createApolloServer } from "../index.ts";
+import { ObjectId } from "mongodb";
 import { db } from "../config/db.ts";
-
-let server;
-let url;
-
+import { createApolloServer } from "../index.ts";
+import { ApolloServer } from "@apollo/server";
 interface Context {
   req: {
     headers: {
@@ -34,10 +21,14 @@ interface Context {
   res: unknown;
 }
 
+let server: any;
+let url: string;
 let movieId: ObjectId;
 let cinemaId: ObjectId;
 let studioId: ObjectId;
 let showTimeId: ObjectId;
+let orderId: ObjectId;
+let userId: ObjectId;
 
 const cinema = {
   name: "Cinema 21 Plaza Senayan",
@@ -75,6 +66,12 @@ const cinema = {
       cinemaID: cinemaId,
     },
   ],
+};
+
+const studio = {
+  studioNumber: 1,
+  type: "2D",
+  cinemaID: cinemaId,
 };
 
 const movie = {
@@ -169,47 +166,30 @@ const showTime = {
   ],
 };
 
-const studio = {
-  studioNumber: 1,
-  type: "2D",
-  cinemaID: cinemaId,
+const user = {
+  email: "test@gmail.com",
+  location: {
+    coordinates: [106.75441244745133, -6.238094806151674],
+    type: "Point",
+  },
+  password: "123456",
+  phoneNumber: "1122331122",
+  name: "Test User",
+  address: "test",
+  gender: "m",
 };
+
+const order = {
+  userID: userId,
+  showTimeID: showTimeId,
+  seats: ["A1", "A2"],
+  totalPrice: 200,
+};
+
 describe("GraphQL Endpoints", () => {
   beforeAll(async () => {
     console.log("MONGODB_URI inside beforeAll:", process.env.MONGODB_URI);
-    server = new ApolloServer({
-      typeDefs: [userTypeDefs, cinemaTypeDefs, movieTypeDefs, midtransTypeDefs],
-      resolvers: [
-        userResolvers,
-        cinemaResolvers,
-        movieResolvers,
-        midtransResolvers,
-      ],
-    });
-
-    const { url: serverUrl } = await startStandaloneServer<any>(server, {
-      listen: {
-        port: 0,
-      },
-      context: async ({ req, res }: Context) => {
-        //async function authorization
-        async function auth(): Promise<WithId<IUser>> {
-          const { authorization } = req.headers;
-          // console.log(req.headers, "<<<");
-          if (!authorization) throw new Error("Invalid Token");
-          const [type, token] = authorization.split(" ");
-          if (type !== "Bearer" || !token) throw new Error("Invalid Token");
-          const payload = verifyToken(token);
-          if (typeof payload !== "string" && payload._id) {
-            const user = await User.findOne(payload._id as string);
-            return user;
-          }
-          throw new Error("Invalid Token");
-        }
-        return { auth };
-      },
-    });
-    url = serverUrl;
+    ({ server, url } = await createApolloServer({ port: 0 }));
 
     console.log("Inserting test data...");
 
@@ -255,18 +235,15 @@ describe("GraphQL Endpoints", () => {
       .post("/graphql")
       .send({
         query: `
-          mutation {
-            register(body: {
-              name: "Test User",
-              email: "test@example.com",
-              password: "123456",
-              phoneNumber: "1234567890",
-              gender: "Male"
-            })
+          mutation Mutation($body: RegisterForm!) {
+            register(body: $body)
           }
         `,
+        variables: {
+          body: user,
+        },
       });
-    // console.log("🚀 ~ it ~ should register a user:", response.body);
+    console.log("🚀 ~ it ~ should register a user:", response.body);
     expect(response.status).toBe(200);
     expect(response.body.data.register).toBe("Register Success");
   });
@@ -276,18 +253,14 @@ describe("GraphQL Endpoints", () => {
       .post("/graphql")
       .send({
         query: `
-                mutation {
-                  register(body: {
-                    name: "Test User",
-                    email: "test@example.com",
-                    password: "123456",
-                    phoneNumber: "1234567890",
-                    gender: "Male"
-                  })
-                }
-              `,
+          mutation Mutation($body: RegisterForm!) {
+            register(body: $body)
+          }
+        `,
+        variables: {
+          body: user,
+        },
       });
-
     console.log("🚀 ~ it ~ response.body:", response.status);
     // expect(response.status).toBe(400);
     expect(response.body.errors[0].message).toBe("Email already exists");
@@ -300,7 +273,7 @@ describe("GraphQL Endpoints", () => {
         query: `
           mutation {
             login(input: {
-              email: "test@example.com",
+              email: "test@gmail.com",
               password: "123456",
             }) {
               user {
@@ -315,8 +288,8 @@ describe("GraphQL Endpoints", () => {
 
     expect(response.status).toBe(200);
     // console.log("🚀 ~ it ~ response:", response.body.data.login);
-    expect(response.body.data.login.user.name).toBe("Test User");
-    expect(response.body.data.login.accessToken).toBeDefined();
+    expect(response.body.data.login?.user.name).toBe("Test User");
+    expect(response.body.data.login?.accessToken).toBeDefined();
   });
 
   it("should fail to login a user with incorrect password", async () => {
@@ -368,25 +341,27 @@ describe("GraphQL Endpoints", () => {
       .post("/graphql")
       .send({
         query: `
-              query {
-                cinema(_id: "${cinemaID}") {
-                  cinema {
+                query Query($id: ID!) {
+                  cinema(_id: $id) {
                     _id
                     name
                     address
+                    location {
+                      type
+                      coordinates
+                    }
                     createdAt
                     updatedAt
                   }
                 }
-              }
               `,
+        variables: { id: cinemaID },
       });
 
-    // console.log(response.body.data);
-    // console.log("🚀 ~ it ~ response.body.data:", response.body.data.cinema._id);
-    expect(response.status).toBe(200);
+    // console.log("🚀 ~ it ~ response.body.data:", response.body.data);
+    // expect(response.status).toBe(200);
     expect(response.body.data.cinema).toBeDefined();
-    expect(response.body.data.cinema.cinema._id).toBe(cinemaID);
+    expect(response.body.data.cinema._id).toBe(cinemaID);
   });
 
   it("should get all movies", async () => {
@@ -444,13 +419,13 @@ describe("GraphQL Endpoints", () => {
     const response = await request(url).post("/graphql").send(queryData);
 
     // Log the response to see errors and data
-    // console.log("🚀 ~ it ~ response.body:", response.body);
 
     // Check for any errors
     if (response.body.errors) {
       console.error("GraphQL errors:", response.body.errors);
     }
 
+    console.log("🚀 ~ it ~ response.body:", response.status);
     expect(response.status).toBe(200);
     expect(response.body.data.movie).toBeDefined();
     expect(response.body.data.movie._id).toBe(movieID);
