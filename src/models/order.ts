@@ -21,7 +21,6 @@ export default class Order {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    console.log(newOrder, "???")
 
     const {insertedId} = await this.coll.insertOne(newOrder)
     return insertedId

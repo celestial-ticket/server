@@ -21,6 +21,7 @@ export interface IOrderInput {
   userId: ObjectId;
   cinemaId: ObjectId;
   showTimeId: ObjectId;
+  movieId: ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
