@@ -3,6 +3,7 @@ import ShowTime from "../models/showtime.ts";
 
 export const showTimeTypeDefs = `#graphql
     # Type of data we have
+
     type ShowTime {
       _id: ID!
       startTime: String
@@ -26,6 +27,7 @@ export const showTimeTypeDefs = `#graphql
     #  Query Get Show Time (Aggregate), Match by FilmID, Date, Group By CinemaID, Lookup ke Cinema By CinemaID
     type Query {
         getShowTimes(movieId: ID!, date: String!): [CinemaWithShowTime]
+        
     }
 `;
 
@@ -37,7 +39,10 @@ export const showTimeResolvers = {
     ) => {
       const movieId = new ObjectId(args.movieId);
       const showTimes = await ShowTime.findAll(movieId, args.date);
+      
       return showTimes;
     },
+
+
   },
 };

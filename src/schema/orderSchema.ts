@@ -81,6 +81,7 @@ export const orderResolvers = {
       const user = await contextValue.auth();
       //payment status default is pending, payment amount is price * seats, price is from showtime
       const { seats, cinemaId, showTimeId, paymentAmount, price, movieId } = args.body as IOrderInput;
+      console.log(args, "args di create order");
       const paymentStatus = "pending";
 
       const newOrder = {
