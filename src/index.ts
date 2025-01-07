@@ -46,7 +46,6 @@ startStandaloneServer(server, {
       if (type !== "Bearer" || !token) throw new Error("Invalid Token");
 
       const payload = verifyToken(token);
-      console.log(payload, "<<< ini payload");
 
       if (typeof payload !== "string" && payload._id) {
         const user = await User.findOne(payload._id as string);
