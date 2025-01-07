@@ -10,8 +10,8 @@ export default class Cinema {
     return cinemas;
   }
 
-  static async findOne(cinemaId: ObjectId): Promise<ICinema | null> {
-    return await this.coll.findOne({ _id: cinemaId });
+  static async findById(cinemaId: string): Promise<ICinema | null> {
+    return await this.coll.findOne({ _id: new ObjectId(cinemaId) });
   }
 
   // Find nearby cinemas
@@ -25,11 +25,27 @@ export default class Cinema {
           $geoNear: {
             near: location,
             distanceField: "distance",
-            maxDistance: 25 * 1000,
+            maxDistance: maxDistance * 1000 || 25 * 10000,
             spherical: true,
           },
         },
       ])
       .toArray()) as ICinema[];
+  }
+
+  static async create(cinema: ICinema): Promise<ICinema> {
+    const result = await this.coll.insertOne(cinema);
+    return { ...cinema, _id: result.insertedId };
+  }
+
+  static async update(id: string, cinema: ICinema): Promise<ICinema> {
+    await this.coll.updateOne({ _id: new ObjectId(id) }, { $set: cinema });
+    return { ...cinema, _id: new ObjectId(id) };
+  }
+
+  static async delete(id: string): Promise<ICinema> {
+    const cinema = await this.findById(id);
+    await this.coll.deleteOne({ _id: new ObjectId(id) });
+    return cinema;
   }
 }

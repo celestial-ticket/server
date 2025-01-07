@@ -55,7 +55,5 @@ export const showTimeResolvers = {
       }));
       return cinemaWithShowTimes;
     },
-
-
   },
 };

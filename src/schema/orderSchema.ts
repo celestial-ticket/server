@@ -9,8 +9,7 @@ export const orderTypeDefs = `#graphql
     type Order{
       _id: ID
       paymentStatus: String
-      paymentAmount: Int
-      price: Int
+      price: Int!
       seats: [String]
       userId: ID!
       cinemaId: ID!
@@ -27,7 +26,6 @@ export const orderTypeDefs = `#graphql
     # mutation create order
     input OrderInput{
       paymentStatus: String
-      paymentAmount: Int
       price: Int
       seats: [String!]
       userId: ID
@@ -53,21 +51,27 @@ export const orderResolvers = {
       const orders = await Order.findAll();
       return orders;
     },
-    getOrderDetails: async (_: unknown, __: unknown, contextValue: { auth: () => { _id: ObjectId } }) => {
+    getOrderDetails: async (
+      _: unknown,
+      __: unknown,
+      contextValue: { auth: () => { _id: ObjectId } }
+    ) => {
       const user = await contextValue.auth();
       const orders = await Order.findAllByUser(user._id);
-      const detailedOrders = await Promise.all(orders.map(async (order) => {
-        const showTimeId = new ObjectId(order.showTimeId);
-        const showTime = await ShowTime.coll.findOne({ _id: showTimeId });
-        const cinema = await Cinema.coll.findOne({ _id: order.cinemaId });
-        const movie = await Movie.coll.findOne({ _id: showTime.movieId });
-        return {
-          ...order,
-          showTime,
-          cinema,
-          movie,
-        };
-      }));
+      const detailedOrders = await Promise.all(
+        orders.map(async (order) => {
+          const showTimeId = new ObjectId(order.showTimeId);
+          const showTime = await ShowTime.coll.findOne({ _id: showTimeId });
+          const cinema = await Cinema.coll.findOne({ _id: order.cinemaId });
+          const movie = await Movie.coll.findOne({ _id: showTime.movieId });
+          return {
+            ...order,
+            showTime,
+            cinema,
+            movie,
+          };
+        })
+      );
       return detailedOrders;
     },
   },
@@ -80,7 +84,8 @@ export const orderResolvers = {
     ) => {
       const user = await contextValue.auth();
       //payment status default is pending, payment amount is price * seats, price is from showtime
-      const { seats, cinemaId, showTimeId, paymentAmount, price, movieId } = args.body as IOrderInput;
+      const { seats, cinemaId, showTimeId, price, movieId } =
+        args.body as IOrderInput;
       console.log(args, "args di create order");
       const paymentStatus = "pending";
 
@@ -91,7 +96,6 @@ export const orderResolvers = {
         movieId: new ObjectId(movieId),
         seats,
         paymentStatus,
-        paymentAmount,
         price,
         createdAt: new Date(),
         updatedAt: new Date(),

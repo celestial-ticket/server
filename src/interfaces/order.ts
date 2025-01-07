@@ -3,7 +3,6 @@ import { ObjectId } from "mongodb";
 export interface IOrder {
   _id?: ObjectId;
   paymentStatus: string;
-  paymentAmount: number;
   price: number;
   seats: [string];
   userId: ObjectId;
@@ -15,7 +14,6 @@ export interface IOrder {
 
 export interface IOrderInput {
   paymentStatus: string;
-  paymentAmount: number;
   price: number;
   seats: [string];
   userId: ObjectId;
