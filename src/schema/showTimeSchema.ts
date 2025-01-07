@@ -37,7 +37,6 @@ export const showTimeResolvers = {
     ) => {
       const movieId = new ObjectId(args.movieId);
       const showTimes = await ShowTime.findAll(movieId, args.date);
-      console.log(showTimes, "????, showtime schema");
       return showTimes;
     },
   },
