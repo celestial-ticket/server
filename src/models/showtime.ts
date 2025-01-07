@@ -7,14 +7,10 @@ export default class ShowTime {
 
   // Query Get Show Time (Aggregate), Match by FilmID, Date, Group By CinemaID, Lookup ke Cinema By CinemaID
   static async findAll(movieId: ObjectId, date: string): Promise<IShowTime[]> {
-    console.log(`Fetching show times for movieId: ${movieId}, date: ${date}`);
-
     // Convert date to start and end of day
     const startDate = new Date(date);
     const endDate = new Date(date);
     endDate.setDate(startDate.getDate() + 1);
-
-    console.log(movieId, startDate, endDate);
 
     // Aggregate pipeline
     const pipeline = await this.coll
@@ -49,9 +45,24 @@ export default class ShowTime {
       ])
       .toArray();
 
-    console.log(`Fetched ${pipeline.length} showtimes.`);
-    console.log(pipeline);
-
     return pipeline as IShowTime[];
+  }
+
+  static async findAllByMovieAndCinemas(
+    movieId: ObjectId,
+    date: string,
+    cinemaIds: ObjectId[]
+  ): Promise<IShowTime[]> {
+    const startDate = new Date(date);
+    const endDate = new Date(date);
+    endDate.setDate(startDate.getDate() + 1);
+
+    return this.coll
+      .find({
+        movieId,
+        cinemaId: { $in: cinemaIds },
+        date: { $gte: startDate, $lt: endDate },
+      })
+      .toArray();
   }
 }

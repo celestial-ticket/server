@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { ICinema } from "../interfaces/cinema.ts";
 import Cinema from "../models/cinema.ts";
 
@@ -7,18 +8,27 @@ export const cinemaTypeDefs = `#graphql
         _id: ID!
         name: String!
         address: String!
+        location: Location!
+        # studios: [Studio]
         createdAt: String
         updatedAt: String
     }
 
-    type CinemaDetailResponse{
-      cinema: Cinema
-    }
+    type Location {
+    type: String!
+    coordinates: [Float!]!
+  }
 
      # type query
      type Query {
         cinemas: [Cinema] #get cinema
-        cinema(_id: ID!): CinemaDetailResponse #get cinema by id
+        cinema(_id: ID!): Cinema #get cinema by id
+        getNearbyCinemas(userLocation: LocationInput!, maxDistance: Int!): [Cinema]
+    }
+
+    input LocationInput {
+      type: String!
+      coordinates: [Float!]!
     }
 `;
 
@@ -31,17 +41,31 @@ export const cinemaResolvers = {
     cinema: async (
       _: unknown,
       args: { _id: string }
-    ): Promise<{ cinema: ICinema }> => {
+    ): Promise<ICinema | null> => {
       try {
-        const cinema = await Cinema.findOne(args._id);
-        if (!cinema) {
-          throw new Error("Cinema not found");
-        }
-        return { cinema };
+        console.log(args, "args di cinema");
+        const cinemaId = new ObjectId(args._id);
+        const cinema = await Cinema.findOne(cinemaId);
+        console.log(cinema, "cinema di schema");
+        return cinema;
       } catch (error) {
         console.log("🚀 ~ error:", error);
         throw new Error("Failed to fetch cinema");
       }
+    },
+
+    getNearbyCinemas: async (
+      _: unknown,
+      args: {
+        userLocation: { type: string; coordinates: [number, number] };
+        maxDistance: number;
+      }
+    ): Promise<any[]> => {
+      const { userLocation, maxDistance } = args;
+      const cinemas = await Cinema.findNearby(userLocation, maxDistance);
+      console.log(cinemas, "cinemas di getNearbyCinemas");
+
+      return cinemas;
     },
   },
 };

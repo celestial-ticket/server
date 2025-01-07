@@ -33,6 +33,7 @@ export const orderTypeDefs = `#graphql
       userId: ID
       cinemaId: ID!
       showTimeId: ID!
+      movieId: ID!
     }
 
     # query find all order by user login and showtime, Cinema, movie, Order
@@ -55,17 +56,16 @@ export const orderResolvers = {
     getOrderDetails: async (_: unknown, __: unknown, contextValue: { auth: () => { _id: ObjectId } }) => {
       const user = await contextValue.auth();
       const orders = await Order.findAllByUser(user._id);
-      console.log(orders, "????");
       const detailedOrders = await Promise.all(orders.map(async (order) => {
-        const showTime = await ShowTime.coll.findOne({ _id: order.showTimeId });
+        const showTimeId = new ObjectId(order.showTimeId);
+        const showTime = await ShowTime.coll.findOne({ _id: showTimeId });
         const cinema = await Cinema.coll.findOne({ _id: order.cinemaId });
-        // const movie = await Movie.coll.findOne({ _id: showTime.movieId });
-        console.log(showTime, cinema, "????");
+        const movie = await Movie.coll.findOne({ _id: showTime.movieId });
         return {
           ...order,
           showTime,
           cinema,
-          // movie,
+          movie,
         };
       }));
       return detailedOrders;
@@ -79,15 +79,16 @@ export const orderResolvers = {
       contextValue: { auth: () => { _id: ObjectId } }
     ) => {
       const user = await contextValue.auth();
-      console.log(args, "======= args");
       //payment status default is pending, payment amount is price * seats, price is from showtime
-      const { seats, cinemaId, showTimeId, paymentAmount, price } = args.body as IOrderInput;
+      const { seats, cinemaId, showTimeId, paymentAmount, price, movieId } = args.body as IOrderInput;
+      console.log(args, "args di create order");
       const paymentStatus = "pending";
 
       const newOrder = {
         userId: user._id,
         cinemaId: new ObjectId(cinemaId),
         showTimeId: new ObjectId(showTimeId),
+        movieId: new ObjectId(movieId),
         seats,
         paymentStatus,
         paymentAmount,
