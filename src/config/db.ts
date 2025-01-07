@@ -1,5 +1,13 @@
+import * as dotenv from "dotenv";
+
+if (process.env.NODE_ENV === "test") {
+  console.log("load env db.ts");
+  dotenv.config();
+}
+
 import { MongoClient, ServerApiVersion } from "mongodb";
 const uri = process.env.MONGODB_URI;
+// console.log("🚀 ~ uri:", process.env);
 
 if (!uri) {
   throw new Error("MONGODB_URI env variable is required");
@@ -14,4 +22,9 @@ export const client = new MongoClient(uri, {
   },
 });
 
-export const db = client.db("celestial-ticket");
+let dbName = "celestial-ticket";
+if (process.env.NODE_ENV === "test") {
+  dbName = "celestial-ticket-test";
+}
+console.log("🚀 ~ dbName:", dbName);
+export const db = client.db(dbName);

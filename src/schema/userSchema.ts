@@ -166,6 +166,7 @@ export const userResolvers = {
         _id: user._id.toString(),
         email: user.email,
       });
+      console.log(accessToken, "ini token");
       return {
         user,
         accessToken,
