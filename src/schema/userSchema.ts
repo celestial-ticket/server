@@ -1,7 +1,12 @@
 import isEmail from "is-email";
 import { comparePassword } from "../helpers/bcrypt.ts";
 import { signToken } from "../helpers/jwt.ts";
-import { ILoginArgs, IRegisterArgs, IUpdateUser, IUser } from "../interfaces/user.ts";
+import {
+  ILoginArgs,
+  IRegisterArgs,
+  IUpdateUser,
+  IUser,
+} from "../interfaces/user.ts";
 import User from "../models/user.ts";
 import { ObjectId } from "mongodb";
 import Order from "../models/order.ts";
@@ -30,7 +35,7 @@ export const userTypeDefs = `#graphql
     # type query
     type Query {
       users: [User] #get user
-      user(_id: ID!): User #get user by id
+      user: User #get user by id
     }
 
     # update user
@@ -98,7 +103,6 @@ export const userResolvers = {
       contextValue: { auth: () => { _id: ObjectId } }
     ) => {
       const user = await contextValue.auth();
-      const userDetail = await User.findOne(user._id.toString());
       const orders = await Order.findAllByUser(user._id);
       const getOrderDetails = await Promise.all(
         orders.map(async (order) => {
@@ -116,7 +120,7 @@ export const userResolvers = {
         })
       );
       return {
-        ...userDetail,
+        ...user,
         orders: getOrderDetails,
       };
     },
@@ -179,7 +183,7 @@ export const userResolvers = {
       contextValue: { auth: () => { _id: ObjectId } }
     ) {
       const userLogin = await contextValue.auth();
-      console.log("🚀 ~ userLogin:", userLogin)
+      console.log("🚀 ~ userLogin:", userLogin);
       await User.update(userLogin._id, args.body);
       const user = await User.findOne(userLogin._id.toString());
       return { user };

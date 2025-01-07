@@ -76,6 +76,9 @@ export async function createApolloServer({ port }: { port: number }) {
 
         if (typeof payload !== "string" && payload._id) {
           const user = await User.findOne(payload._id as string);
+          if (user === null) {
+            throw new Error("User not found");
+          }
           return user;
         }
         throw new Error("Invalid Token");
