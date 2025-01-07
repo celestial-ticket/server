@@ -113,37 +113,41 @@ export const userResolvers = {
     },
 
     async login(_: unknown, args: ILoginArgs) {
-        if (!args.input.email) throw new Error("email is required");
-        if (!args.input.password) throw new Error("Password is required");
+      if (!args.input.email) throw new Error("email is required");
+      if (!args.input.password) throw new Error("Password is required");
 
-        const user = await User.coll.findOne({ email: args.input.email });
-        if (!user) throw new Error("Invalid email/password");
-        const isValidPassword = comparePassword(
-          args.input.password,
-          user.password
-        );
+      const user = await User.coll.findOne({ email: args.input.email });
+      if (!user) throw new Error("Invalid email/password");
+      const isValidPassword = comparePassword(
+        args.input.password,
+        user.password
+      );
 
-        if (!isValidPassword) throw new Error("Invalid email/password");
+      if (!isValidPassword) throw new Error("Invalid email/password");
 
-        const accessToken = signToken({
-          _id: user._id.toString(),
-          email: user.email,
-        });
-        console.log(accessToken, "ini token");
-        return {
-          user,
-          accessToken,
-        };
+      const accessToken = signToken({
+        _id: user._id.toString(),
+        email: user.email,
+      });
+      console.log(accessToken, "ini token");
+      return {
+        user,
+        accessToken,
+      };
     },
 
-    async updateUser(_: unknown, args: { _id: string; body: IRegisterArgs['body'] }, contextValue: { auth: () => { _id: ObjectId } }) {
+    async updateUser(
+      _: unknown,
+      args: { _id: string; body: IRegisterArgs["body"] },
+      contextValue: { auth: () => { _id: ObjectId } }
+    ) {
       const userLogin = await contextValue.auth();
       if (userLogin._id.toString() !== args._id) {
-      throw new Error("Unauthorized");
+        throw new Error("Unauthorized");
       }
       await User.update(args._id, args.body);
       const user = await User.findOne(args._id);
       return { user };
-    }
-  }
+    },
+  },
 };
