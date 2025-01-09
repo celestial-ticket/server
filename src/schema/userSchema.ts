@@ -49,7 +49,7 @@ export const userTypeDefs = `#graphql
       email: String!
       password: String!
       phoneNumber: String!
-      location: LocationInput!
+      location: LocationInput
       address: String
       gender: String
     }

@@ -84,10 +84,10 @@ export const orderResolvers = {
     ) => {
       const user = await contextValue.auth();
       //payment status default is pending, payment amount is price * seats, price is from showtime
-      const { seats, cinemaId, showTimeId, price, movieId } =
+      const { seats, cinemaId, showTimeId, price, movieId, paymentStatus } =
         args.body as IOrderInput;
       console.log(args, "args di create order");
-      const paymentStatus = "pending";
+      let curPaymentStatus = paymentStatus || "pending";
 
       const newOrder = {
         userId: user._id,
@@ -95,7 +95,7 @@ export const orderResolvers = {
         showTimeId: new ObjectId(showTimeId),
         movieId: new ObjectId(movieId),
         seats,
-        paymentStatus,
+        paymentStatus: curPaymentStatus,
         price,
         createdAt: new Date(),
         updatedAt: new Date(),

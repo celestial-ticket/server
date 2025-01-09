@@ -22,6 +22,10 @@ import {
 } from "./schema/showTimeSchema.ts";
 import { studioTypeDefs } from "./schema/studioSchema.ts";
 import { midtransResolvers, midtransTypeDefs } from "./schema/midtrans.ts";
+import {
+  sendEmailResolvers,
+  sendEmailTypeDefs,
+} from "./schema/sendEmailSchema.ts";
 
 interface Context {
   req: {
@@ -47,6 +51,7 @@ export async function createApolloServer({ port }: { port: number }) {
       showTimeTypeDefs,
       studioTypeDefs,
       orderTypeDefs,
+      sendEmailTypeDefs,
     ],
     resolvers: [
       userResolvers,
@@ -55,6 +60,7 @@ export async function createApolloServer({ port }: { port: number }) {
       midtransResolvers,
       showTimeResolvers,
       orderResolvers,
+      sendEmailResolvers,
     ],
   });
 

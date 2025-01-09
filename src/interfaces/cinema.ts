@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { IShowTime } from "./showTime";
 
 export interface ICinema {
   _id: ObjectId;
@@ -10,4 +11,5 @@ export interface ICinema {
   };
   createdAt: Date;
   updatedAt: Date;
+  showTimes: [IShowTime];
 }

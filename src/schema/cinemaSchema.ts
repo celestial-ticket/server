@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { ICinema } from "../interfaces/cinema.ts";
 import Cinema from "../models/cinema.ts";
+import Movie from "../models/movie.ts";
 
 export const cinemaTypeDefs = `#graphql
     # Type of data we have
@@ -12,6 +13,7 @@ export const cinemaTypeDefs = `#graphql
         # studios: [Studio]
         createdAt: String
         updatedAt: String
+        showTimes: [ShowTime]
     }
 
     input CinemaInput {
@@ -74,7 +76,7 @@ export const cinemaResolvers = {
       }
     ): Promise<any[]> => {
       const { userLocation, maxDistance } = args;
-      const cinemas = await Cinema.findNearby(userLocation, maxDistance);
+      let cinemas = await Cinema.findNearby(userLocation, maxDistance);
       console.log(cinemas, "cinemas di getNearbyCinemas");
 
       return cinemas;

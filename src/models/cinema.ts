@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { db } from "../config/db.ts";
 import { ICinema } from "../interfaces/cinema.ts";
+import { pipeline } from "stream";
 
 export default class Cinema {
   static coll = db.collection<ICinema>("cinemas");
@@ -29,6 +30,15 @@ export default class Cinema {
             spherical: true,
           },
         },
+        {
+          $lookup: {
+            from: "showTimes",
+            localField: "_id",
+            foreignField: "cinemaId",
+            as: "showTimes",
+          },
+        },
+        // { $unwind: "$showTimes" },
       ])
       .toArray()) as ICinema[];
   }

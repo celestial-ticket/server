@@ -18,9 +18,9 @@ export default class Movie {
 
   //find movie by movie status "now showing"
   static async findById(id: string): Promise<IMovie> {
-    console.log("🚀 ~ Movie ~ findById ~ id:", id);
+    // console.log("🚀 ~ Movie ~ findById ~ id:", id);
     const movie = await this.coll.findOne({ _id: new ObjectId(id) });
-    console.log("🚀 ~ Movie ~ findById ~ movie:", movie);
+    // console.log("🚀 ~ Movie ~ findById ~ movie:", movie);
     return movie;
   }
 }
